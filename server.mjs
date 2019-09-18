@@ -4,11 +4,15 @@ const {
 } = Tradfri
 
 const {
-  discoverGateway
+  discoverGateway,
+  AccessoryTypes
 } = Tradfri
 
 import constants from "./PrivateConstants.mjs"
 
+Array.prototype.randomElement = function () {
+  return this[Math.floor(Math.random() * this.length)]
+}
 
 
 
@@ -32,6 +36,8 @@ const authenticate = async function (tradfri) {
 }
 
 const groups = {}
+const lightbulbs = {}
+
 let blinking = false
 
 function tradfri_groupUpdated(group) {
@@ -40,7 +46,14 @@ function tradfri_groupUpdated(group) {
     blink(group)
   }
   const statusStr = "...Current status:" + (group.onOff ? "On" : "off")
-  console.log("Group updated:", group.name, statusStr)
+  // console.log("Group updated:", group.name, statusStr)
+}
+
+function tradfri_deviceUpdated(device) {
+  if (device.type === AccessoryTypes.lightbulb) {
+    lightbulbs[device.instanceId] = device;
+  }
+  // console.log("Light updated!", device)
 }
 
 const main = async function () {
@@ -57,25 +70,44 @@ const main = async function () {
   tradfri
     .on("group updated", tradfri_groupUpdated)
     .observeGroupsAndScenes();
+
+  tradfri
+    .on("device updated", tradfri_deviceUpdated)
+    .observeDevices();
 }
 
 
+
+
 function blink(group) {
-  console.log(group)
   blinking = true
-  console.log("Blinking group with name:", group.name)
-  let state = false
+  // console.log("Blinking group with name:", group.name)
 
   function timeout() {
     setTimeout(function () {
-      state = !state
-      group.toggle(state)
+      const light = getLightsInGroup(group).randomElement()
+      try {
+        const state = light.onOff
+        console.log("Attemtping to toggle light:", light._accessory.instanceId, state)
+        light.toggle(!state)
+      } catch (e) {
+        console.log("Could not find", light, e)
+      }
 
       timeout();
-    }, 3000);
+    }, 1000);
   }
   timeout()
 
+}
+
+/**
+ * The deviceIDs also contains non light devices, this function filters that out.
+ * @param group The group to find a list of lights in.
+ */
+function getLightsInGroup(group) {
+  const lightIds = group.deviceIDs.filter(id => lightbulbs.hasOwnProperty(id))
+  return lightIds.map(id => lightbulbs[id].lightList[0])
 }
 
 
