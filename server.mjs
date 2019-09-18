@@ -39,8 +39,8 @@ function tradfri_groupUpdated(group) {
   if (group.name === constants.GROUP_NAME && blinking === false) {
     blink(group)
   }
-
-
+  const statusStr = "...Current status:" + (group.onOff ? "On" : "off")
+  console.log("Group updated:", group.name, statusStr)
 }
 
 const main = async function () {
@@ -61,6 +61,7 @@ const main = async function () {
 
 
 function blink(group) {
+  console.log(group)
   blinking = true
   console.log("Blinking group with name:", group.name)
   let state = false
