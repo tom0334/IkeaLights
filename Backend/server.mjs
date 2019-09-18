@@ -64,7 +64,21 @@ export default class Communicator {
     const ids = Object.keys(this.groups)
     const simpleGroups = ids.map(groupId => createGroupObject(groupId))
     return simpleGroups
+  }
 
+  getLights() {
+    const createLightObject = (id) => {
+      const complexLight = this.lightbulbs[id]
+      const simpleLight = {
+        "id": id,
+        "on": complexLight.onOff
+      }
+      return simpleLight
+    }
+
+    const ids = Object.keys(this.lightbulbs)
+    const simpleLights = ids.map(lightId => createLightObject(lightId))
+    return simpleLights
   }
 
   tradfri_groupUpdated(group) {

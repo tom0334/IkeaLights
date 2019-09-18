@@ -1,10 +1,14 @@
 // App.vue
 
-<template lang="pug">
-  .container Hello {{groups}}
+<template>
+  <div>
+    <div>LIGHTS: {{lights}}</div>
+    <div>________________-</div>
+    <div>GROUPS: {{groups}}</div>
+  </div>
 </template>
 
-<script lang="ts">
+<script lang="js">
 const axios = require("axios");
 import Vue from "vue";
 
@@ -13,7 +17,7 @@ export default Vue.extend({
     this.bundler = "hello";
     const ctx = this;
     axios
-      .get("http://localhost:3000/lights")
+      .get("http://localhost:3000/groups")
 
       .then(function(response) {
         // handle success
@@ -24,11 +28,25 @@ export default Vue.extend({
         // handle error
         console.log(error);
       });
+    axios
+      .get("http://localhost:3000/lights")
+
+      .then(function(response) {
+        // handle success
+        console.log(response);
+        ctx.lights = response.data;
+      })
+      .catch(function(error) {
+        // handle error
+        console.log(error);
+      });
   },
+
   data() {
     return {
       bundler: "Parcel",
-      groups: []
+      groups: [],
+      lights: []
     };
   }
 });

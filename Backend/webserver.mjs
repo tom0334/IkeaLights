@@ -33,8 +33,12 @@ const main = async function () {
     next();
   });
 
-  app.get('/lights', (req, res) => {
+  app.get('/groups', (req, res) => {
     res.send(JSON.stringify(com.getGroups()))
+  })
+
+  app.get('/lights', (req, res) => {
+    res.send(JSON.stringify(com.getLights()))
   })
 
   app.get('/', (req, res) => res.send('Hello World!'))
