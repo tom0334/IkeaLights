@@ -7,20 +7,75 @@ const {
   discoverGateway
 } = Tradfri
 
-const main = async function () {
-
-  const result = await discoverGateway();
-  console.log(result)
+import constants from "./PrivateConstants.mjs"
 
 
-  // connect
-  const tradfri = new TradfriClient("gw-abcdef012345");
+
+
+const authenticate = async function (tradfri) {
   try {
-    await tradfri.connect(identity, psk);
+    const {
+      identity,
+      psk
+    } = await tradfri.authenticate(constants.SECURITY_CODE);
+    console.log("AUTHRESULT:", identity, psk)
+    return {
+      "identity": identity,
+      "psk": psk
+    }
   } catch (e) {
-    console.log("error occured:", e)
-    // handle error - see below for details
+    console.log("Authenticate failed:", e)
   }
+  return null
+
+
 }
+
+const groups = {}
+let blinking = false
+
+function tradfri_groupUpdated(group) {
+  groups[group.instanceId] = group;
+  if (group.name === constants.GROUP_NAME && blinking === false) {
+    blink(group)
+  }
+
+
+}
+
+const main = async function () {
+  const tradfri = new TradfriClient(constants.GATEWAY);
+
+  const authResult = await authenticate(tradfri)
+  try {
+    await tradfri.connect(authResult.identity, authResult.psk);
+  } catch (e) {
+    console.log("Failed to connect:", e)
+  }
+
+  // observe devices
+  tradfri
+    .on("group updated", tradfri_groupUpdated)
+    .observeGroupsAndScenes();
+}
+
+
+function blink(group) {
+  blinking = true
+  console.log("Blinking group with name:", group.name)
+  let state = false
+
+  function timeout() {
+    setTimeout(function () {
+      state = !state
+      group.toggle(state)
+
+      timeout();
+    }, 3000);
+  }
+  timeout()
+
+}
+
 
 main()
