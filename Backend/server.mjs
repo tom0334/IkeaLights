@@ -52,7 +52,18 @@ export default class Communicator {
   }
 
   getGroups() {
-    return this.groups
+    const createGroupObject = (id) => {
+      const complexGroup = this.groups[id]
+      const simpleGroup = {
+        "name": complexGroup.name,
+        "id": id
+      }
+      return simpleGroup
+    }
+
+    const ids = Object.keys(this.groups)
+    const simpleGroups = ids.map(groupId => createGroupObject(groupId))
+    return simpleGroups
 
   }
 
