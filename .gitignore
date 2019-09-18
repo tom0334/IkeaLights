@@ -1,2 +1,4 @@
 node_modules
 PrivateConstants.mjs
+Frontend/.cache
+Frontend/dist
