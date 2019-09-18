@@ -11,7 +11,7 @@ import Vue from "vue";
 export default Vue.extend({
   created: function() {
     axios
-      .get("http://localhost:3000/")
+      .get("http://localhost:3000/lights")
 
       .then(function(response) {
         // handle success

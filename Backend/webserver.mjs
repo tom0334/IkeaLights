@@ -1,31 +1,46 @@
-const express = require('express')
+import Communicator from "./server.mjs"
+import express from 'express'
 const app = express()
 const port = 3000
 
-// Add headers
-app.use(function (req, res, next) {
 
-  // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:1234');
+const main = async function () {
+  console.log("running init")
+  const com = new Communicator()
+  console.log(com)
+  const success = await com.initInBackground()
+  console.log("init done", success)
+  const groups = com.groups
+  console.log("GROUPS:", groups)
 
-  // Request methods you wish to allow
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  // Add headers
+  app.use(function (req, res, next) {
 
-  // Request headers you wish to allow
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:1234');
 
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', true);
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
-  // Pass to next layer of middleware
-  next();
-});
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
 
-app.get('/lights', (req, res) => {
-  res.send('Hello World!')
-})
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', true);
 
-app.get('/', (req, res) => res.send('Hello World!'))
+    // Pass to next layer of middleware
+    next();
+  });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+  app.get('/lights', (req, res) => {
+    res.send(JSON.stringify(com.getGroups()))
+  })
+
+  app.get('/', (req, res) => res.send('Hello World!'))
+
+  app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+}
+
+main()

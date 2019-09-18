@@ -24,7 +24,7 @@ function getLightsInGroup(group, lightbulbs) {
 }
 
 
-class Communicator {
+export default class Communicator {
 
   constructor() {
     this.groups = {}
@@ -50,6 +50,12 @@ class Communicator {
     }
     return null
   }
+
+  getGroups() {
+    return this.groups
+
+  }
+
   tradfri_groupUpdated(group) {
     this.groups[group.instanceId] = group;
     if (group.name === constants.GROUP_NAME && this.blinking === false) {
@@ -109,13 +115,3 @@ class Communicator {
     timeout()
   }
 }
-
-const main = async function () {
-  const com = new Communicator()
-  const success = await com.initInBackground()
-  console.log("init done", success)
-  const groups = com.groups
-  console.log(groups)
-}
-
-main()
