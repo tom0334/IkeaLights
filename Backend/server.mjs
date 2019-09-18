@@ -68,11 +68,12 @@ export default class Communicator {
 
   getLights() {
     const createLightObject = (id) => {
-      const complexLight = this.lightbulbs[id]
+      const complexLight = this.lightbulbs[id].lightList[0]
       const simpleLight = {
         "id": id,
         "on": complexLight.onOff
       }
+      console.log("LIGHT", complexLight)
       return simpleLight
     }
 

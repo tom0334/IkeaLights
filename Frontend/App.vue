@@ -11,6 +11,11 @@
 <script lang="js">
 const axios = require("axios");
 import Vue from "vue";
+import Vuetify, {
+  VCard,
+  VRating,
+  VToolbar,
+} from 'vuetify/lib'
 
 export default Vue.extend({
   mounted: function() {
