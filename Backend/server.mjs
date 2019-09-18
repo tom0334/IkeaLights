@@ -9,6 +9,9 @@ const {
 } = Tradfri
 
 import constants from "./PrivateConstants.mjs"
+import {
+  stat
+} from "fs";
 
 Array.prototype.randomElement = function () {
   return this[Math.floor(Math.random() * this.length)]
@@ -19,8 +22,12 @@ Array.prototype.randomElement = function () {
  * @param group The group to find a list of lights in.
  */
 function getLightsInGroup(group, lightbulbs) {
-  const lightIds = group.deviceIDs.filter(id => lightbulbs.hasOwnProperty(id))
+  const lightIds = getLightIdsInGroup(group, lightbulbs)
   return lightIds.map(id => lightbulbs[id].lightList[0])
+}
+
+function getLightIdsInGroup(group, lightbulbs) {
+  return group.deviceIDs.filter(id => lightbulbs.hasOwnProperty(id))
 }
 
 
@@ -54,9 +61,11 @@ export default class Communicator {
   getGroups() {
     const createGroupObject = (id) => {
       const complexGroup = this.groups[id]
+
       const simpleGroup = {
         "name": complexGroup.name,
-        "id": id
+        "id": id,
+        "lightIds": getLightIdsInGroup(complexGroup, this.lightbulbs)
       }
       return simpleGroup
     }
@@ -73,7 +82,6 @@ export default class Communicator {
         "id": id,
         "on": complexLight.onOff
       }
-      console.log("LIGHT", complexLight)
       return simpleLight
     }
 
@@ -83,10 +91,11 @@ export default class Communicator {
   }
 
   tradfri_groupUpdated(group) {
+    // console.log(group)
     this.groups[group.instanceId] = group;
-    if (group.name === constants.GROUP_NAME && this.blinking === false) {
-      this.blink(group)
-    }
+    // if (group.name === constants.GROUP_NAME && this.blinking === false) {
+    //   this.blink(group)
+    // }
     const statusStr = "...Current status:" + (group.onOff ? "On" : "off")
     // console.log("Group updated:", group.name, statusStr)
   }
@@ -117,6 +126,11 @@ export default class Communicator {
       .on("device updated", this.tradfri_deviceUpdated)
       .observeDevices();
     return true
+  }
+  setLight(id, desiredState) {
+    const light = this.lightbulbs[id].lightList[0]
+    light.toggle(desiredState)
+
   }
 
   blink(group) {

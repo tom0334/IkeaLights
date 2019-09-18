@@ -1,5 +1,6 @@
 import Communicator from "./server.mjs"
 import express from 'express'
+import bodyParser from 'body-parser'
 const app = express()
 const port = 3000
 
@@ -13,11 +14,13 @@ const main = async function () {
   const groups = com.groups
   console.log("GROUPS:", groups)
 
+  app.use(bodyParser.json())
+
   // Add headers
   app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:1234');
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -39,6 +42,19 @@ const main = async function () {
 
   app.get('/lights', (req, res) => {
     res.send(JSON.stringify(com.getLights()))
+  })
+
+  app.post('/set', (request, response) => {
+    console.log("POST RECEIVED", request.body)
+    const state = request.body.on
+    const lights = request.body.lightIds
+
+    console.log("lights from post", lights)
+
+    lights.forEach(lightId =>
+      com.setLight(lightId, state)
+    )
+    response.send("OK")
   })
 
   app.get('/', (req, res) => res.send('Hello World!'))
