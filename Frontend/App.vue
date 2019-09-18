@@ -1,7 +1,7 @@
 // App.vue
 
 <template lang="pug">
-  .container Hello {{bundler}}
+  .container Hello {{groups}}
 </template>
 
 <script lang="ts">
@@ -9,13 +9,16 @@ const axios = require("axios");
 import Vue from "vue";
 
 export default Vue.extend({
-  created: function() {
+  mounted: function() {
+    this.bundler = "hello";
+    const ctx = this;
     axios
       .get("http://localhost:3000/lights")
 
       .then(function(response) {
         // handle success
         console.log(response);
+        ctx.groups = response.data;
       })
       .catch(function(error) {
         // handle error
@@ -24,7 +27,8 @@ export default Vue.extend({
   },
   data() {
     return {
-      bundler: "Parcel"
+      bundler: "Parcel",
+      groups: []
     };
   }
 });
